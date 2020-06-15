@@ -1,6 +1,7 @@
 package main
 
 import (
+	".."
 	"fmt"
 	"net/http"
 )
@@ -11,18 +12,19 @@ type Engine struct {
 func main() {
 
 	// 自定义Engine处理所有请求 engine实现的serveHTTP方法 等同于实现了handler的接口
-	e := new(Engine)
+	e := tequila.New()
+	e.Post("/testPost", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintf(w, "this is  post method %s", r.URL)
+	})
+
+	e.Get("/testGet", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintf(w, "this is get method %s", r.URL.Path)
+	})
+
+	e.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprint(w, "hello")
+	})
 
 	// 监听端口 等待处理handler
-	_ = http.ListenAndServe(":8099", e)
-}
-
-func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// 根据请求不同的请求地址进行不同的处理
-	switch r.URL.Path {
-	case "/":
-		_, _ = fmt.Fprintf(w, "%s %s", r.Method, r.URL)
-	case "/hello":
-		_, _ = fmt.Fprintf(w, "%s %s hello!", r.Method, r.URL)
-	}
+	_ = e.Run(":8099")
 }
