@@ -1,29 +1,19 @@
 package tequila
 
 import (
-	"fmt"
 	"net/http"
 )
 
-type handler func(w http.ResponseWriter, r *http.Request)
+type handler func(ctx *Context)
 
 // 同处理器统一处理请求
 type Engine struct {
-	router map[string]handler
+	router *router
 }
 
 // 创建新的路由
 func New() *Engine {
-	return &Engine{
-		router: make(map[string]handler),
-	}
-}
-
-// 添加路由
-func (e *Engine) addRoute(method, path string, h handler) {
-	// 将方法与地址绑定 用于区分不同方法相同路径的handler
-	key := fmt.Sprintf("%s-%s", method, path)
-	e.router[key] = h
+	return &Engine{router: newRouter()}
 }
 
 // 开发 post 和 get 请求
@@ -35,17 +25,16 @@ func (e *Engine) Post(path string, h handler) {
 	e.addRoute("POST", path, h)
 }
 
-// 处理请求
+// 添加路由  主程序的添加路由由主程序统一处理 发给router
+func (e *Engine) addRoute(method, path string, h handler) {
+	e.router.addRoute(method, path, h)
+}
+
+// 处理请求 统一交给router处理
 func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// 获取方法和地址 用于拼装key
-	key := fmt.Sprintf("%s-%s", r.Method, r.URL.Path)
-	// 查看是否在路由中
-	h, ok := e.router[key]
-	if ok {
-		h(w, r)
-	} else {
-		_, _ = fmt.Fprintf(w, "404 not found %s", r.URL.Path)
-	}
+
+	cxt := newContext(w, r)
+	e.router.handle(cxt)
 }
 
 // 监听端口
