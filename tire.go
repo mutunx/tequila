@@ -31,7 +31,7 @@ func (n *node) matchChildren(part string) []*node {
 }
 
 func (n *node) insert(path string, parts []string, height int) {
-	// 最末节点添加全路径
+	// 最末节点添加全路径 遇到*开头则直接返回
 	if len(parts) == height {
 		n.Path = path
 		return
@@ -45,7 +45,7 @@ func (n *node) insert(path string, parts []string, height int) {
 	if child == nil {
 		child = &node{
 			Part:   part,
-			isWild: strings.HasPrefix(part, ":"), // 判断是否时动态路由进行赋值
+			isWild: strings.HasPrefix(part, ":") || strings.HasPrefix(part, "*"), // 判断是否时动态路由进行赋值
 		}
 		n.children = append(n.children, child)
 	}
@@ -62,7 +62,11 @@ func (n *node) search(parts []string, height int) *node {
 	// 递归方法 结束标志为
 	// 1.地址块长度等于长度:表示已经到达最后位置
 	// 2.n的地址不为空:在插入成功时再最后一个节点添加了请求地址其他节点的请求地址为空
-	if len(parts) == height && n.Path != "" {
+	// 3.n.part部分为*开头 则返回全部
+	if len(parts) == height || strings.HasPrefix(n.Part, "*") {
+		if n.Path == "" {
+			return nil
+		}
 		return n
 	}
 

@@ -24,6 +24,10 @@ func main() {
 	e.Get("/hello/:lang/say", func(ctx *tequila.Context) {
 		ctx.String(http.StatusOK, "hello %s", ctx.R.Host)
 	})
+	// 动态路由 *
+	e.Get("/hello/file/*filePath", func(ctx *tequila.Context) {
+		ctx.String(http.StatusOK, "hello %s", ctx.R.Host)
+	})
 
 	e.Get("/", func(ctx *tequila.Context) {
 		ctx.String(http.StatusOK, "hello")
