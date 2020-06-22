@@ -16,6 +16,8 @@ type Context struct {
 	Method string
 	// 返回数据
 	StatusCode int
+	// 获取动态路由的参数
+	Params map[string]string
 }
 
 // 创建
@@ -26,6 +28,11 @@ func newContext(w http.ResponseWriter, r *http.Request) *Context {
 		Path:   r.URL.Path,
 		Method: r.Method,
 	}
+}
+
+// 获取参数
+func (c *Context) Param(key string) string {
+	return c.Params[key]
 }
 
 // 设置状态

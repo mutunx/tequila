@@ -19,7 +19,11 @@ func (n *node) matchChild(part string) *node {
 	return nil
 }
 
-// 搜索用 匹配多子节点 因为在搜索时可以遇到匹配到动态路由和相同地址块的
+/**
+	输入:地址块
+	返回:n中与之相同part的节点 切片
+    搜索用 匹配多子节点 因为在搜索时可以遇到匹配到动态路由和相同地址块的
+*/
 func (n *node) matchChildren(part string) []*node {
 	nodes := make([]*node, 0)
 	for _, n := range n.children {
@@ -56,7 +60,7 @@ func (n *node) insert(path string, parts []string, height int) {
 /**
 输入:地址块和高度
 返回:节点||nil
-查找地址块是否有匹配的节点,有则返回节点没有返回nil
+查找地址块是否有匹配的节点,有则返回所匹配的最后一个节点没有返回nil
 */
 func (n *node) search(parts []string, height int) *node {
 	// 递归方法 结束标志为

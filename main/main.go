@@ -22,11 +22,11 @@ func main() {
 	})
 	// 动态路由
 	e.Get("/hello/:lang/say", func(ctx *tequila.Context) {
-		ctx.String(http.StatusOK, "hello %s", ctx.R.Host)
+		ctx.String(http.StatusOK, "hello say %s", ctx.Param("lang"))
 	})
 	// 动态路由 *
-	e.Get("/hello/file/*filePath", func(ctx *tequila.Context) {
-		ctx.String(http.StatusOK, "hello %s", ctx.R.Host)
+	e.Get("/hello/*filePath", func(ctx *tequila.Context) {
+		ctx.String(http.StatusOK, "hello give you file %s", ctx.Param("filePath"))
 	})
 
 	e.Get("/", func(ctx *tequila.Context) {
