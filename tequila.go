@@ -3,6 +3,7 @@ package tequila
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type handler func(ctx *Context)
@@ -30,6 +31,11 @@ func New() *Engine {
 	// 添加到分组中
 	engine.groups = []*RouterGroup{engine.RouterGroup}
 	return engine
+}
+
+// 添加方法到中间件中
+func (group *RouterGroup) Use(h handler) {
+	group.middleware = append(group.middleware, h)
 }
 
 func (group *RouterGroup) Group(prefix string) *RouterGroup {
@@ -64,9 +70,16 @@ func (group *RouterGroup) addRoute(method, path string, h handler) {
 
 // 处理请求 统一交给router处理
 func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	cxt := newContext(w, r)
-	e.router.handle(cxt)
+	// 获取当前分组 获取当前分组中间件 交给context处理
+	var middlewares []handler
+	for _, group := range e.groups {
+		if strings.HasPrefix(r.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middleware...)
+		}
+	}
+	ctx := newContext(w, r)
+	ctx.handlers = middlewares
+	e.router.handle(ctx)
 }
 
 // 监听端口

@@ -55,10 +55,14 @@ func (r *router) handle(ctx *Context) {
 		ctx.Params = params
 		// 获取方法和地址 用于拼装key  根据最后匹配的地址进行操作 用于匹配动态路由
 		key := fmt.Sprintf("%s-%s", ctx.Method, n.Path)
-		r.handlers[key](ctx)
+		ctx.handlers = append(ctx.handlers, r.handlers[key])
 	} else {
-		http.NotFound(ctx.W, ctx.R)
+		ctx.handlers = append(ctx.handlers, func(ctx *Context) {
+			ctx.String(http.StatusNotFound, "404 not found")
+		})
 	}
+	// 作为最后一个执行
+	ctx.Next()
 }
 
 /**

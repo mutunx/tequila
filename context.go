@@ -18,6 +18,9 @@ type Context struct {
 	StatusCode int
 	// 获取动态路由的参数
 	Params map[string]string
+	// 中间件
+	handlers []handler
+	index    int
 }
 
 // 创建
@@ -27,6 +30,15 @@ func newContext(w http.ResponseWriter, r *http.Request) *Context {
 		R:      r,
 		Path:   r.URL.Path,
 		Method: r.Method,
+		index:  -1,
+	}
+}
+
+func (c *Context) Next() {
+	c.index++
+	// 如果调用next就逐个获取handlers里面的handler处理 等处理完后再处理调用next方法之后的handler
+	for ; c.index < len(c.handlers); c.index++ {
+		c.handlers[c.index](c)
 	}
 }
 

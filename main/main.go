@@ -2,7 +2,9 @@ package main
 
 import (
 	".."
+	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -34,6 +36,11 @@ func main() {
 	})
 
 	group := e.Group("/v1")
+	group.Use(func(ctx *tequila.Context) {
+		t := time.Now()
+		ctx.Next()
+		log.Printf("[%d] %s in %v", ctx.StatusCode, ctx.R.RequestURI, time.Since(t))
+	})
 	group.Get("/hello", func(ctx *tequila.Context) {
 		ctx.String(http.StatusOK, "yoyoyoyo this is v1 %s", ctx.Path)
 	})
