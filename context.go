@@ -72,7 +72,7 @@ func (c *Context) Json(code int, j J) {
 	// 设置返回头
 	c.W.Header().Set("Content-Type", "application/json; charset=utf-8")
 	// 设置返回状态码
-	c.W.WriteHeader(code)
+	c.Status(code)
 	// 设置返回数据
 	encode := json.NewEncoder(c.W)
 	if err := encode.Encode(j); err != nil {
@@ -82,7 +82,7 @@ func (c *Context) Json(code int, j J) {
 
 func (c *Context) String(code int, format string, value ...interface{}) {
 	c.W.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	c.W.WriteHeader(code)
+	c.Status(code)
 	_, _ = c.W.Write([]byte(fmt.Sprintf(format, value...)))
 }
 
