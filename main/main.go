@@ -33,6 +33,11 @@ func main() {
 		ctx.String(http.StatusOK, "hello")
 	})
 
+	group := e.Group("/v1")
+	group.Get("/hello", func(ctx *tequila.Context) {
+		ctx.String(http.StatusOK, "yoyoyoyo this is v1 %s", ctx.Path)
+	})
+
 	// 监听端口 等待处理handler
 	_ = e.Run(":8099")
 }
